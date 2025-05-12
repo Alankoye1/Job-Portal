@@ -15,15 +15,17 @@ if (session_status() === PHP_SESSION_NONE) {
 // Get latest job listings
 $latest_jobs_query = "SELECT * 
                      FROM jobs 
-                     WHERE status = 'active' AND expires_at > NOW() 
                      ORDER BY created_at DESC 
                      LIMIT 6";
 $latest_jobs_result = $conn->query($latest_jobs_query);
+if (!$latest_jobs_result) {
+    echo "Error: " . $conn->error;
+}
 
 // Get featured job listings
 $featured_jobs_query = "SELECT * 
                        FROM jobs  
-                       WHERE status = 'active' AND featured = 1 AND expires_at > NOW() 
+                       WHERE featured = 1 
                        ORDER BY created_at DESC 
                        LIMIT 3";
 $featured_jobs_result = $conn->query($featured_jobs_query);
@@ -34,7 +36,6 @@ if (!$featured_jobs_result) {
 // Get job categories with counts
 $categories_query = "SELECT category, COUNT(*) as job_count 
                     FROM jobs 
-                    WHERE status = 'active' AND expires_at > NOW() 
                     GROUP BY category 
                     ORDER BY job_count DESC 
                     LIMIT 8";
@@ -42,7 +43,7 @@ $categories_result = $conn->query($categories_query);
 
 // Get total counts for statistics
 $stats_query = "SELECT 
-                (SELECT COUNT(*) FROM jobs WHERE status = 'active' AND expires_at > NOW()) as active_jobs,
+                (SELECT COUNT(*) FROM jobs) as active_jobs,
                 (SELECT COUNT(*) FROM employers) as employers,
                 (SELECT COUNT(*) FROM jobseekers) as jobseekers,
                 (SELECT COUNT(*) FROM applications) as applications";

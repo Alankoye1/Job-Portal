@@ -78,7 +78,21 @@ if ($featured) {
 }
 
 // Add sorting
-$query .= " ORDER BY j.featured DESC, j.created_at DESC";
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
+switch ($sort) {
+    case 'oldest':
+        $query .= " ORDER BY j.featured DESC, j.created_at ASC";
+        break;
+    case 'a-z':
+        $query .= " ORDER BY j.featured DESC, j.title ASC";
+        break;
+    case 'z-a':
+        $query .= " ORDER BY j.featured DESC, j.title DESC";
+        break;
+    default: // newest
+        $query .= " ORDER BY j.featured DESC, j.created_at DESC";
+        break;
+}
 
 // Add pagination
 $query .= " LIMIT ?, ?";
@@ -89,7 +103,10 @@ $types .= "ii";
 // Prepare and execute count query
 $count_stmt = $conn->prepare($count_query);
 if (!empty($types)) {
-    $count_stmt->bind_param(substr($types, 0, -2), ...array_slice($params, 0, -2));
+    // Calculate correct type string length for count query parameters
+    $count_types = substr($types, 0, strlen($types) - 2); // Remove the 'ii' added for pagination
+    $count_params = array_slice($params, 0, -2); // Remove last 2 elements (offset and per_page)
+    $count_stmt->bind_param($count_types, ...$count_params);
 }
 $count_stmt->execute();
 $count_result = $count_stmt->get_result();

@@ -11,17 +11,17 @@
                 <div class="col-md-2 mb-3 mb-md-0">
                     <h5 class="mb-3">For Job Seekers</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/browse-jobs.php" class="text-white-50 text-decoration-none">Browse Jobs</a></li>
-                        <li><a href="/jobseeker/profile.php" class="text-white-50 text-decoration-none">Create Profile</a></li>
-                        <li><a href="/jobseeker/applications.php" class="text-white-50 text-decoration-none">My Applications</a></li>
+                        <li><a href="./browse-jobs.php" class="text-white-50 text-decoration-none">Browse Jobs</a></li>
+                        <li><a href="./jobseeker/profile.php" class="text-white-50 text-decoration-none">Create Profile</a></li>
+                        <li><a href="./jobseeker/applications.php" class="text-white-50 text-decoration-none">My Applications</a></li>
                     </ul>
                 </div>
                 <div class="col-md-2 mb-3 mb-md-0">
                     <h5 class="mb-3">For Employers</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/employer/post-job.php" class="text-white-50 text-decoration-none">Post a Job</a></li>
-                        <li><a href="/employer/applications.php" class="text-white-50 text-decoration-none">Browse Candidates</a></li>
-                        <li><a href="/employer/manage-jobs.php" class="text-white-50 text-decoration-none">Manage Listings</a></li>
+                        <li><a href="./employer/post-job.php" class="text-white-50 text-decoration-none">Post a Job</a></li>
+                        <li><a href="./employer/applications.php" class="text-white-50 text-decoration-none">Browse Candidates</a></li>
+                        <li><a href="./employer/manage-jobs.php" class="text-white-50 text-decoration-none">Manage Listings</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

@@ -22,7 +22,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $job_id = intval($_GET['id']);
 
 // Get job details
-$query = "SELECT j.*, e.company_name, e.logo, e.location as company_location, e.website, e.company_description
+$query = "SELECT j.*, e.company_name, e.logo, e.location as company_location, e.website
           FROM jobs j 
           JOIN employers e ON j.employer_id = e.id 
           WHERE j.id = ? AND j.status = 'active' AND j.expires_at > NOW()";
@@ -40,10 +40,25 @@ if ($result->num_rows === 0) {
 $job = $result->fetch_assoc();
 
 // Update view count
-$update_views = "UPDATE jobs SET views = views + 1 WHERE id = ?";
-$stmt = $conn->prepare($update_views);
-$stmt->bind_param("i", $job_id);
-$stmt->execute();
+// Check if views column exists in the jobs table
+$check_column = "SHOW COLUMNS FROM jobs LIKE 'views'";
+$result_check = $conn->query($check_column);
+if ($result_check->num_rows > 0) {
+    $update_views = "UPDATE jobs SET views = views + 1 WHERE id = ?";
+    $stmt = $conn->prepare($update_views);
+    $stmt->bind_param("i", $job_id);
+    $stmt->execute();
+} else {
+    // If views column doesn't exist, create it first
+    $add_column = "ALTER TABLE jobs ADD COLUMN views INT DEFAULT 0";
+    $conn->query($add_column);
+    
+    // Then update the view count
+    $update_views = "UPDATE jobs SET views = 1 WHERE id = ?";
+    $stmt = $conn->prepare($update_views);
+    $stmt->bind_param("i", $job_id);
+    $stmt->execute();
+}
 
 // Get similar jobs
 $similar_jobs_query = "SELECT j.id, j.title, j.job_type, j.location, j.created_at, e.company_name
@@ -102,7 +117,7 @@ include_once 'includes/header.php';
                             </p>
                             
                             <div class="job-meta">
-                                <?php if($job['job_type']): ?>
+                                <?php if($job['job_type'] && array_key_exists($job['job_type'], getEmploymentTypes())): ?>
                                     <span class="badge bg-primary mb-1 me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?></span>
                                 <?php endif; ?>
                                 
@@ -138,7 +153,7 @@ include_once 'includes/header.php';
                         
                         <div class="me-3 mb-2">
                             <p class="mb-0 text-muted">
-                                <i class="far fa-eye me-1"></i> <?php echo $job['views']; ?> views
+                                <i class="far fa-eye me-1"></i> <?php echo isset($job['views']) ? $job['views'] : 0; ?> views
                             </p>
                         </div>
                         
@@ -150,7 +165,7 @@ include_once 'includes/header.php';
                         
                         <div class="me-3 mb-2">
                             <p class="mb-0 text-muted">
-                                <i class="far fa-file-alt me-1"></i> <?php echo $job['applications']; ?> applications
+                                <i class="far fa-file-alt me-1"></i> <?php echo isset($job['applications']) ? $job['applications'] : 0; ?> applications
                             </p>
                         </div>
                     </div>
@@ -242,7 +257,7 @@ include_once 'includes/header.php';
                         
                         <div class="me-4 mb-3">
                             <strong><i class="fas fa-briefcase me-2"></i> Job Type:</strong>
-                            <?php echo $job['job_type'] ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : 'Not specified'; ?>
+                            <?php echo ($job['job_type'] && array_key_exists($job['job_type'], getEmploymentTypes())) ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : 'Not specified'; ?>
                         </div>
                         
                         <div class="me-4 mb-3">
@@ -252,12 +267,16 @@ include_once 'includes/header.php';
                         
                         <div class="me-4 mb-3">
                             <strong><i class="fas fa-layer-group me-2"></i> Experience:</strong>
-                            <?php echo $job['experience_level'] ? htmlspecialchars(getExperienceLevels()[$job['experience_level']]) : 'Not specified'; ?>
+                            <?php echo (isset($job['experience_level']) && $job['experience_level'] && array_key_exists($job['experience_level'], getExperienceLevels())) ? htmlspecialchars(getExperienceLevels()[$job['experience_level']]) : 'Not specified'; ?>
                         </div>
                         
                         <div class="me-4 mb-3">
                             <strong><i class="fas fa-graduation-cap me-2"></i> Education:</strong>
-                            <?php echo $job['education_level'] ? htmlspecialchars(getEducationLevels()[$job['education_level']]) : 'Not specified'; ?>
+                            <?php 
+                                $education_levels = getEducationLevels();
+                                echo (isset($job['education_level']) && $job['education_level'] && array_key_exists($job['education_level'], $education_levels)) ? 
+                                    htmlspecialchars($education_levels[$job['education_level']]) : 'Not specified'; 
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -317,13 +336,7 @@ include_once 'includes/header.php';
                                 <?php endif; ?>
                             </div>
                             
-                            <?php if($job['company_description']): ?>
-                                <div class="company-description">
-                                    <?php echo nl2br(htmlspecialchars($job['company_description'])); ?>
-                                </div>
-                            <?php else: ?>
-                                <p class="text-muted">No company description available.</p>
-                            <?php endif; ?>
+                            <p class="text-muted">No company description available.</p>
                         </div>
                     </div>
                 </div>
@@ -405,7 +418,16 @@ include_once 'includes/header.php';
                             <i class="fas fa-briefcase fa-fw text-primary me-3 mt-1"></i>
                             <div>
                                 <strong>Job Type</strong>
-                                <p class="mb-0"><?php echo $job['job_type'] ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : 'Not specified'; ?></p>
+                                <p class="mb-0">
+                                <?php 
+                                    $employment_types = getEmploymentTypes();
+                                    if (!empty($job['job_type']) && isset($employment_types[$job['job_type']])) {
+                                        echo htmlspecialchars($employment_types[$job['job_type']]);
+                                    } else {
+                                        echo 'Not specified';
+                                    }
+                                ?>
+                                </p>
                             </div>
                         </li>
                         <li class="d-flex mb-3">
@@ -428,14 +450,14 @@ include_once 'includes/header.php';
                             <i class="fas fa-layer-group fa-fw text-primary me-3 mt-1"></i>
                             <div>
                                 <strong>Experience</strong>
-                                <p class="mb-0"><?php echo $job['experience_level'] ? htmlspecialchars(getExperienceLevels()[$job['experience_level']]) : 'Not specified'; ?></p>
+                                <p class="mb-0"><?php echo (isset($job['experience_level']) && $job['experience_level'] && array_key_exists($job['experience_level'], getExperienceLevels())) ? htmlspecialchars(getExperienceLevels()[$job['experience_level']]) : 'Not specified'; ?></p>
                             </div>
                         </li>
                         <li class="d-flex">
                             <i class="fas fa-graduation-cap fa-fw text-primary me-3 mt-1"></i>
                             <div>
                                 <strong>Education</strong>
-                                <p class="mb-0"><?php echo $job['education_level'] ? htmlspecialchars(getEducationLevels()[$job['education_level']]) : 'Not specified'; ?></p>
+                                <p class="mb-0"><?php echo (isset($job['education_level']) && $job['education_level'] && array_key_exists($job['education_level'], getEducationLevels())) ? htmlspecialchars(getEducationLevels()[$job['education_level']]) : 'Not specified'; ?></p>
                             </div>
                         </li>
                     </ul>

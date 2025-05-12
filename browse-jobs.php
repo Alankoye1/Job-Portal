@@ -298,8 +298,10 @@ include_once 'includes/header.php';
                                             <p class="company-name mb-2"><?php echo htmlspecialchars($job['company_name']); ?></p>
                                             
                                             <div class="job-meta mb-2">
-                                                <?php if($job['job_type']): ?>
+                                                <?php if($job['job_type'] && isset(getEmploymentTypes()[$job['job_type']])): ?>
                                                     <span class="badge bg-primary mb-1 me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?></span>
+                                                <?php elseif($job['job_type']): ?>
+                                                    <span class="badge bg-primary mb-1 me-1"><?php echo htmlspecialchars($job['job_type']); ?></span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if($job['location']): ?>

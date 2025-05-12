@@ -304,9 +304,9 @@ include_once '../includes/header.php';
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <a type="submit" class="btn btn-primary" href="/index.php">
                                 <i class="fas fa-user-plus me-2"></i> Create Account
-                            </button>
+                            </a>
                         </div>
                     </form>
                     

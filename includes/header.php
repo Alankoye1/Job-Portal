@@ -23,8 +23,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <body>
     <!-- Top Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="./index.php">
+        <div class="container">            <a class="navbar-brand d-flex align-items-center" href="/project/index.php">
                 <i class="fas fa-briefcase me-2"></i>
                 <span class="fw-bold">JobConnect</span>
             </a>
@@ -34,12 +33,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="./index.php">
+                        <a class="nav-link <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="/project/index.php">
                             <i class="fas fa-home me-1"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($current_page == 'browse-jobs.php') ? 'active' : ''; ?>" href="./browse-jobs.php">
+                        <a class="nav-link <?php echo ($current_page == 'browse-jobs.php') ? 'active' : ''; ?>" href="/project/browse-jobs.php">
                             <i class="fas fa-search me-1"></i> Browse Jobs
                         </a>
                     </li>
@@ -50,14 +49,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="employerDropdown" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-building me-1"></i> Employer Dashboard
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="./employer/dashboard.php">Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="./employer/post-job.php">Post a Job</a></li>
-                                    <li><a class="dropdown-item" href="./employer/manage-jobs.php">Manage Jobs</a></li>
-                                    <li><a class="dropdown-item" href="./employer/applications.php">Applications</a></li>
+                                </a>                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/project/employer/dashboard.php">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="/project/employer/post-job.php">Post a Job</a></li>
+                                    <li><a class="dropdown-item" href="/project/employer/manage-jobs.php">Manage Jobs</a></li>
+                                    <li><a class="dropdown-item" href="/project/employer/applications.php">Applications</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="./auth/logout.php">Logout</a></li>
+                                    <li><a class="dropdown-item" href="/project/auth/logout.php">Logout</a></li>
                                 </ul>
                             </li>
                         <?php elseif($_SESSION['user_type'] == 'jobseeker'): ?>
@@ -66,22 +64,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     <i class="fas fa-user me-1"></i> My Account
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="./jobseeker/dashboard.php">Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="./jobseeker/profile.php">My Profile</a></li>
-                                    <li><a class="dropdown-item" href="./jobseeker/applications.php">My Applications</a></li>
+                                    <li><a class="dropdown-item" href="/project/jobseeker/dashboard.php">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="/project/jobseeker/profile.php">My Profile</a></li>
+                                    <li><a class="dropdown-item" href="/project/jobseeker/applications.php">My Applications</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="./auth/logout.php">Logout</a></li>
+                                    <li><a class="dropdown-item" href="/project/auth/logout.php">Logout</a></li>
                                 </ul>
                             </li>
-                        <?php endif; ?>
-                    <?php else: ?>
+                        <?php endif; ?>                    <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo ($current_page == 'login.php') ? 'active' : ''; ?>" href="./auth/login.php">
+                            <a class="nav-link <?php echo ($current_page == 'login.php') ? 'active' : ''; ?>" href="/project/auth/login.php">
                                 <i class="fas fa-sign-in-alt me-1"></i> Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo ($current_page == 'register.php') ? 'active' : ''; ?>" href="./auth/register.php">
+                            <a class="nav-link <?php echo ($current_page == 'register.php') ? 'active' : ''; ?>" href="/project/auth/register.php">
                                 <i class="fas fa-user-plus me-1"></i> Register
                             </a>
                         </li>

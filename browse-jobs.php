@@ -106,7 +106,9 @@ if (!empty($types)) {
     // Calculate correct type string length for count query parameters
     $count_types = substr($types, 0, strlen($types) - 2); // Remove the 'ii' added for pagination
     $count_params = array_slice($params, 0, -2); // Remove last 2 elements (offset and per_page)
-    $count_stmt->bind_param($count_types, ...$count_params);
+    if (!empty($count_types) && !empty($count_params)) {
+        $count_stmt->bind_param($count_types, ...$count_params);
+    }
 }
 $count_stmt->execute();
 $count_result = $count_stmt->get_result();

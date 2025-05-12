@@ -21,10 +21,10 @@ $employer = $result->fetch_assoc();
 
 // Get job statistics
 $jobs_query = "SELECT 
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'active' AND expires_at > NOW()) as active_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'filled') as filled_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'closed') as closed_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'draft') as draft_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as active_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as filled_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as closed_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as draft_jobs,
               (SELECT SUM(views) FROM jobs WHERE employer_id = ?) as total_views,
               (SELECT SUM(applications) FROM jobs WHERE employer_id = ?) as total_applications";
 $stmt = $conn->prepare($jobs_query);

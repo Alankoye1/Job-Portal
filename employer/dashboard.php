@@ -286,7 +286,7 @@ include_once '../includes/header.php';
                                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="jobActions<?php echo $job['id']; ?>">
                                                 <li><a class="dropdown-item" href="edit-job.php?id=<?php echo $job['id']; ?>"><i class="fas fa-edit me-2"></i> Edit</a></li>
                                                 <li><a class="dropdown-item" href="../job-details.php?id=<?php echo $job['id']; ?>"><i class="fas fa-eye me-2"></i> View</a></li>
-                                                <li><a class="dropdown-item" href="job-applications.php?job_id=<?php echo $job['id']; ?>"><i class="fas fa-users me-2"></i> Applications</a></li>
+                                                <li><a class="dropdown-item" href="applications.php?job_id=<?php echo $job['id']; ?>"><i class="fas fa-users me-2"></i> Applications</a></li>
                                                 <li><hr class="dropdown-divider"></li>
                                                 <?php if($job['status'] == 'active'): ?>
                                                     <li><a class="dropdown-item text-warning" href="mark-job.php?id=<?php echo $job['id']; ?>&status=filled"><i class="fas fa-check-circle me-2"></i> Mark as Filled</a></li>

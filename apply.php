@@ -124,12 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("iiss", $job_id, $_SESSION['user_id'], $resume_file, $cover_letter);
         
         if ($stmt->execute()) {
-            // Update job applications count
-            $update_query = "UPDATE jobs SET applications = applications + 1 WHERE id = ?";
-            $stmt = $conn->prepare($update_query);
-            $stmt->bind_param("i", $job_id);
-            $stmt->execute();
-            
+            // Application submitted successfully
             setMessage("Your application has been submitted successfully", "success");
             header("Location: jobseeker/applications.php");
             exit;

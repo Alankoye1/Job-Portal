@@ -7,11 +7,18 @@ if (session_status() === PHP_SESSION_NONE) {
 // Include functions
 require_once '../includes/functions.php';
 
-// Clear remember me cookie if it exists
-if (isset($_COOKIE['remember_token'])) {
-    setcookie('remember_token', '', time() - 3600, '/');
+// Clear cookies if they exist
+if (isset($_COOKIE['user_email'])) {
     setcookie('user_email', '', time() - 3600, '/');
 }
+
+// Remember Me cookies are disabled because remember_token and token_expires
+// columns don't exist in the database tables yet
+/*
+if (isset($_COOKIE['remember_token'])) {
+    setcookie('remember_token', '', time() - 3600, '/');
+}
+*/
 
 // Clear all session variables
 $_SESSION = array();

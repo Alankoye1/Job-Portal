@@ -68,6 +68,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 // Set remember me cookie if checked
                 if ($remember) {
+                    // Remember Me functionality is disabled because remember_token and token_expires
+                    // columns don't exist in the database tables yet.
+                    // You can add these columns to both employers and jobseekers tables to enable this feature.
+                    
+                    /*
                     $token = generateToken();
                     $expires = time() + (86400 * 30); // 30 days
 
@@ -81,6 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Set cookie
                     setcookie('remember_token', $token, $expires, '/');
                     setcookie('user_email', $email, $expires, '/');
+                    */
                 }
 
                 setMessage("Login successful. Welcome back!", "success");

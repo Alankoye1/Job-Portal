@@ -8,6 +8,17 @@ require_once '../config/db.php';
 // Include functions
 require_once '../includes/functions.php';
 
+// Helper function to display experience years
+function getExperienceYearsText($years) {
+    if ($years === 0) return "Less than 1 year";
+    if ($years === 1) return "1 year";
+    if ($years <= 5) return "$years years";
+    if ($years == 7) return "5-7 years";
+    if ($years == 10) return "8-10 years";
+    if ($years == 15) return "10+ years";
+    return "$years years";
+}
+
 // Check if user is logged in and is a job seeker
 requireJobSeeker();
 
@@ -22,34 +33,41 @@ $jobseeker = $result->fetch_assoc();
 // Process profile update form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
-    $name = sanitizeInput($_POST['name']);
+    $first_name = sanitizeInput($_POST['first_name']);
+    $last_name = sanitizeInput($_POST['last_name']);
     $headline = sanitizeInput($_POST['headline']);
     $summary = sanitizeInput($_POST['summary']);
     $location = sanitizeInput($_POST['location']);
     $phone = sanitizeInput($_POST['phone']);
     $skills = sanitizeInput($_POST['skills']);
-    $experience = sanitizeInput($_POST['experience']);
-    $education = sanitizeInput($_POST['education']);
+    $experience_years = !empty($_POST['experience_years']) ? intval($_POST['experience_years']) : null;
+    $education_level = sanitizeInput($_POST['education_level']);
+    $current_position = sanitizeInput($_POST['current_position']);
+    $current_company = sanitizeInput($_POST['current_company']);
     
     // Validate inputs
     $errors = [];
     
-    if (empty($name)) {
-        $errors[] = "Name is required";
+    if (empty($first_name)) {
+        $errors[] = "First name is required";
+    }
+    
+    if (empty($last_name)) {
+        $errors[] = "Last name is required";
     }
     
     // Handle profile image upload
-    $profile_image = $jobseeker['profile_image'];
+    $profile_pic = $jobseeker['profile_pic'];
     
-    if (!empty($_FILES['profile_image']['name'])) {
+    if (!empty($_FILES['profile_pic']['name'])) {
         $upload_dir = '../assets/uploads/profile/';
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        $upload_result = uploadFile($_FILES['profile_image'], $upload_dir, $allowed_types);
+        $upload_result = uploadFile($_FILES['profile_pic'], $upload_dir, $allowed_types);
         
         if (!$upload_result['status']) {
             $errors[] = $upload_result['message'];
         } else {
-            $profile_image = $upload_result['filename'];
+            $profile_pic = $upload_result['filename'];
         }
     }
     
@@ -71,22 +89,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // If no validation errors, proceed with profile update
     if (empty($errors)) {
         $query = "UPDATE jobseekers SET 
-                  name = ?, 
+                  first_name = ?, 
+                  last_name = ?, 
                   headline = ?, 
                   summary = ?, 
                   location = ?, 
                   phone = ?, 
-                  skills = ?, 
-                  experience = ?, 
-                  education = ?, 
-                  profile_image = ?,
+                  skills = ?,
+                  experience_years = ?,
+                  education_level = ?,
+                  current_position = ?,
+                  current_company = ?,
+                  profile_pic = ?,
                   resume = ?
                   WHERE id = ?";
         
         $stmt = $conn->prepare($query);
         $stmt->bind_param(
-            "ssssssssssi",
-            $name, $headline, $summary, $location, $phone, $skills, $experience, $education, $profile_image, $resume, $_SESSION['user_id']
+            "sssssssisssssi",
+            $first_name, $last_name, $headline, $summary, $location, $phone, $skills, 
+            $experience_years, $education_level, $current_position, $current_company,
+            $profile_pic, $resume, $_SESSION['user_id']
         );
         
         if ($stmt->execute()) {
@@ -111,14 +134,14 @@ include_once '../includes/header.php';
                 <div class="card-body p-4">
                     <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
                         <div class="profile-image me-md-4 mb-3 mb-md-0 bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
-                            <?php if($jobseeker['profile_image']): ?>
-                                <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_image']); ?>" alt="<?php echo htmlspecialchars($jobseeker['name']); ?>" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                            <?php if($jobseeker['profile_pic']): ?>
+                                <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_pic']); ?>" alt="<?php echo htmlspecialchars($jobseeker['first_name'] . ' ' . $jobseeker['last_name']); ?>" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
                             <?php else: ?>
                                 <i class="fas fa-user text-secondary fa-4x"></i>
                             <?php endif; ?>
                         </div>
                         <div class="text-center text-md-start">
-                            <h2 class="mb-1"><?php echo htmlspecialchars($jobseeker['name']); ?></h2>
+                            <h2 class="mb-1"><?php echo htmlspecialchars($jobseeker['first_name'] . ' ' . $jobseeker['last_name']); ?></h2>
                             <p class="lead mb-2"><?php echo $jobseeker['headline'] ? htmlspecialchars($jobseeker['headline']) : 'Add your professional headline'; ?></p>
                             
                             <div class="mb-3">
@@ -190,8 +213,16 @@ include_once '../includes/header.php';
                             </button>
                         </div>
                         <div class="card-body">
-                            <?php if($jobseeker['experience']): ?>
-                                <?php echo nl2br(htmlspecialchars($jobseeker['experience'])); ?>
+                            <?php if(isset($jobseeker['current_position']) && $jobseeker['current_position']): ?>
+                                <div class="mb-3">
+                                    <h6><?php echo htmlspecialchars($jobseeker['current_position']); ?></h6>
+                                    <?php if(isset($jobseeker['current_company']) && $jobseeker['current_company']): ?>
+                                        <p class="text-muted"><?php echo htmlspecialchars($jobseeker['current_company']); ?></p>
+                                    <?php endif; ?>
+                                    <?php if(isset($jobseeker['experience_years'])): ?>
+                                        <p class="badge bg-secondary"><?php echo getExperienceYearsText($jobseeker['experience_years']); ?> of experience</p>
+                                    <?php endif; ?>
+                                </div>
                             <?php else: ?>
                                 <p class="text-muted">Add your work experience to showcase your professional history.</p>
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
@@ -210,8 +241,8 @@ include_once '../includes/header.php';
                             </button>
                         </div>
                         <div class="card-body">
-                            <?php if($jobseeker['education']): ?>
-                                <?php echo nl2br(htmlspecialchars($jobseeker['education'])); ?>
+                            <?php if(isset($jobseeker['education_level']) && $jobseeker['education_level']): ?>
+                                <h6><?php echo htmlspecialchars($jobseeker['education_level']); ?></h6>
                             <?php else: ?>
                                 <p class="text-muted">Add your educational background to highlight your qualifications.</p>
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
@@ -299,14 +330,16 @@ include_once '../includes/header.php';
                         'phone' => 'Phone number',
                         'resume' => 'Resume',
                         'skills' => 'Skills',
-                        'experience' => 'Work experience',
-                        'education' => 'Education',
-                        'profile_image' => 'Profile picture'
+                        'experience_years' => 'Years of experience',
+                        'education_level' => 'Education level',
+                        'current_position' => 'Current position',
+                        'current_company' => 'Current company',
+                        'profile_pic' => 'Profile picture'
                     ];
                     
                     $missing_fields = [];
                     foreach ($profile_fields as $field => $label) {
-                        if (empty($jobseeker[$field])) {
+                        if (!isset($jobseeker[$field]) || empty($jobseeker[$field])) {
                             $missing_fields[] = $label;
                         }
                     }
@@ -372,9 +405,15 @@ include_once '../includes/header.php';
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" name="name" 
-                                       value="<?php echo htmlspecialchars($jobseeker['name']); ?>" required>
+                                <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="<?php echo htmlspecialchars($jobseeker['first_name']); ?>" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="<?php echo htmlspecialchars($jobseeker['last_name']); ?>" required>
                             </div>
                             
                             <div class="mb-3">
@@ -408,13 +447,13 @@ include_once '../includes/header.php';
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="profile_image" class="form-label">Profile Image</label>
-                                <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                                <label for="profile_pic" class="form-label">Profile Image</label>
+                                <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
                                 <div class="form-text">Upload a professional photo (JPG, PNG, or GIF)</div>
                                 
-                                <?php if($jobseeker['profile_image']): ?>
+                                <?php if($jobseeker['profile_pic']): ?>
                                     <div class="mt-2">
-                                        <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_image']); ?>" alt="Current profile image" class="rounded" style="max-width: 100px; max-height: 100px;">
+                                        <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_pic']); ?>" alt="Current profile image" class="rounded" style="max-width: 100px; max-height: 100px;">
                                         <span class="ms-2">Current image</span>
                                     </div>
                                 <?php endif; ?>
@@ -441,13 +480,46 @@ include_once '../includes/header.php';
                             </div>
                             
                             <div class="mb-3">
-                                <label for="experience" class="form-label">Work Experience</label>
-                                <textarea class="form-control" id="experience" name="experience" rows="6" placeholder="List your work experience, including job titles, companies, dates, and responsibilities"><?php echo htmlspecialchars($jobseeker['experience']); ?></textarea>
+                                <label for="experience_years" class="form-label">Years of Experience</label>
+                                <select class="form-control" id="experience_years" name="experience_years">
+                                    <option value="">Select years of experience</option>
+                                    <option value="0" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 0) ? 'selected' : ''; ?>>Less than 1 year</option>
+                                    <option value="1" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 1) ? 'selected' : ''; ?>>1 year</option>
+                                    <option value="2" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 2) ? 'selected' : ''; ?>>2 years</option>
+                                    <option value="3" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 3) ? 'selected' : ''; ?>>3 years</option>
+                                    <option value="4" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 4) ? 'selected' : ''; ?>>4 years</option>
+                                    <option value="5" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 5) ? 'selected' : ''; ?>>5 years</option>
+                                    <option value="7" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 7) ? 'selected' : ''; ?>>5-7 years</option>
+                                    <option value="10" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 10) ? 'selected' : ''; ?>>8-10 years</option>
+                                    <option value="15" <?php echo (isset($jobseeker['experience_years']) && $jobseeker['experience_years'] == 15) ? 'selected' : ''; ?>>10+ years</option>
+                                </select>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="education" class="form-label">Education</label>
-                                <textarea class="form-control" id="education" name="education" rows="4" placeholder="List your educational background, including degrees, institutions, and dates"><?php echo htmlspecialchars($jobseeker['education']); ?></textarea>
+                                <label for="education_level" class="form-label">Education Level</label>
+                                <select class="form-control" id="education_level" name="education_level">
+                                    <option value="">Select highest education level</option>
+                                    <option value="High School" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == 'High School') ? 'selected' : ''; ?>>High School</option>
+                                    <option value="Associate's Degree" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == "Associate's Degree") ? 'selected' : ''; ?>>Associate's Degree</option>
+                                    <option value="Bachelor's Degree" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == "Bachelor's Degree") ? 'selected' : ''; ?>>Bachelor's Degree</option>
+                                    <option value="Master's Degree" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == "Master's Degree") ? 'selected' : ''; ?>>Master's Degree</option>
+                                    <option value="Doctorate" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == 'Doctorate') ? 'selected' : ''; ?>>Doctorate</option>
+                                    <option value="Other" <?php echo (isset($jobseeker['education_level']) && $jobseeker['education_level'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="current_position" class="form-label">Current Position</label>
+                                <input type="text" class="form-control" id="current_position" name="current_position" 
+                                       value="<?php echo isset($jobseeker['current_position']) ? htmlspecialchars($jobseeker['current_position']) : ''; ?>"
+                                       placeholder="e.g., Senior Software Engineer">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="current_company" class="form-label">Current Company</label>
+                                <input type="text" class="form-control" id="current_company" name="current_company" 
+                                       value="<?php echo isset($jobseeker['current_company']) ? htmlspecialchars($jobseeker['current_company']) : ''; ?>"
+                                       placeholder="e.g., Tech Company Inc.">
                             </div>
                         </div>
                     </div>

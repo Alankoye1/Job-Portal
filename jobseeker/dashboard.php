@@ -105,7 +105,7 @@ include_once '../includes/header.php';
 <div class="container mb-5">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h1 class="mb-0">Welcome back, <?php echo htmlspecialchars($jobseeker['name']); ?>!</h1>
+            <h1 class="mb-0">Welcome back, <?php echo htmlspecialchars($jobseeker['first_name'] . ' ' . $jobseeker['last_name']); ?>!</h1>
             <p class="text-muted">Here's what's happening with your job applications</p>
         </div>
         <div class="col-md-6 text-md-end">
@@ -343,14 +343,14 @@ include_once '../includes/header.php';
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-4">
                         <div class="profile-image me-3 bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                            <?php if($jobseeker['profile_image']): ?>
-                                <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_image']); ?>" alt="<?php echo htmlspecialchars($jobseeker['name']); ?>" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                            <?php if($jobseeker['profile_pic']): ?>
+                                <img src="/assets/uploads/profile/<?php echo htmlspecialchars($jobseeker['profile_pic']); ?>" alt="<?php echo htmlspecialchars($jobseeker['first_name'] . ' ' . $jobseeker['last_name']); ?>" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
                             <?php else: ?>
                                 <i class="fas fa-user text-secondary fa-2x"></i>
                             <?php endif; ?>
                         </div>
                         <div>
-                            <h5 class="mb-1"><?php echo htmlspecialchars($jobseeker['name']); ?></h5>
+                            <h5 class="mb-1"><?php echo htmlspecialchars($jobseeker['first_name'] . ' ' . $jobseeker['last_name']); ?></h5>
                             <p class="mb-0 text-muted"><?php echo $jobseeker['headline'] ? htmlspecialchars($jobseeker['headline']) : 'Add your professional headline'; ?></p>
                         </div>
                     </div>

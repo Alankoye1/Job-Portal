@@ -98,15 +98,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $query = "INSERT INTO jobs (
                     employer_id, title, description, responsibilities, requirements, benefits,
                     location, salary_min, salary_max, salary_period, job_type, category,
-                    experience_level, education_level, status, featured, expires_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    status, featured, expires_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $conn->prepare($query);
         $stmt->bind_param(
-            "issssssddssssssss",
+            "isssssddsssssis",
             $_SESSION['user_id'], $title, $description, $responsibilities, $requirements, $benefits,
             $location, $salary_min, $salary_max, $salary_period, $job_type, $category,
-            $experience_level, $education_level, $status, $featured, $expires_at
+            $status, $featured, $expires_at
         );
         
         if ($stmt->execute()) {

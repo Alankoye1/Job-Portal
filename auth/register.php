@@ -76,106 +76,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
         // Insert user data into appropriate table
-        $table = $user_type == 'employer' ? 'employers' : 'jobseekers';
-        
-        // Create the table if it doesn't exist
         if ($user_type == 'employer') {
-            $create_table_query = "CREATE TABLE IF NOT EXISTS employers (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                company_name VARCHAR(255),
-                company_description TEXT,
-                location VARCHAR(255),
-                website VARCHAR(255),
-                logo VARCHAR(255),
-                phone VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                remember_token VARCHAR(100),
-                token_expires DATETIME
-            )";
+            // Insert employer data
+            $query = "INSERT INTO employers (company_name, email, password) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("sss", $name, $email, $hashed_password);
         } else {
-            $create_table_query = "CREATE TABLE IF NOT EXISTS jobseekers (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                headline VARCHAR(255),
-                summary TEXT,
-                location VARCHAR(255),
-                phone VARCHAR(50),
-                resume VARCHAR(255),
-                skills TEXT,
-                experience TEXT,
-                education TEXT,
-                profile_image VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                remember_token VARCHAR(100),
-                token_expires DATETIME
-            )";
+            // Split name into first_name and last_name
+            $name_parts = explode(' ', $name, 2);
+            $first_name = $name_parts[0];
+            $last_name = isset($name_parts[1]) ? $name_parts[1] : '';
+            
+            // Insert jobseeker data
+            $query = "INSERT INTO jobseekers (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("ssss", $first_name, $last_name, $email, $hashed_password);
         }
-        
-        $conn->query($create_table_query);
-        
-        // Create jobs table if it doesn't exist
-        $create_jobs_table = "CREATE TABLE IF NOT EXISTS jobs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            employer_id INT NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            description TEXT NOT NULL,
-            responsibilities TEXT,
-            requirements TEXT,
-            benefits TEXT,
-            location VARCHAR(255),
-            salary_min DECIMAL(10,2),
-            salary_max DECIMAL(10,2),
-            salary_period ENUM('hourly', 'daily', 'weekly', 'monthly', 'yearly'),
-            job_type VARCHAR(50),
-            category VARCHAR(50),
-            experience_level VARCHAR(50),
-            education_level VARCHAR(50),
-            status ENUM('active', 'filled', 'closed', 'draft') DEFAULT 'active',
-            featured BOOLEAN DEFAULT 0,
-            views INT DEFAULT 0,
-            applications INT DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            expires_at DATETIME,
-            FOREIGN KEY (employer_id) REFERENCES employers(id) ON DELETE CASCADE
-        )";
-        
-        $conn->query($create_jobs_table);
-        
-        // Create applications table if it doesn't exist
-        $create_applications_table = "CREATE TABLE IF NOT EXISTS applications (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            job_id INT NOT NULL,
-            jobseeker_id INT NOT NULL,
-            resume VARCHAR(255),
-            cover_letter TEXT,
-            status ENUM('pending', 'reviewed', 'interviewed', 'offered', 'hired', 'rejected') DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
-            FOREIGN KEY (jobseeker_id) REFERENCES jobseekers(id) ON DELETE CASCADE
-        )";
-        
-        $conn->query($create_applications_table);
-        
-        // Insert the new user
-        $query = "INSERT INTO $table (name, email, password) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("sss", $name, $email, $hashed_password);
         
         if ($stmt->execute()) {
             $user_id = $conn->insert_id;
             
             // Set session variables
             $_SESSION['user_id'] = $user_id;
-            $_SESSION['user_name'] = $name;
+            if ($user_type == 'employer') {
+                $_SESSION['user_name'] = $name; // Company name
+            } else {
+                $_SESSION['user_name'] = $name; // Full name for jobseekers
+            }
             $_SESSION['user_email'] = $email;
             $_SESSION['user_type'] = $user_type;
             
@@ -304,9 +231,9 @@ include_once '../includes/header.php';
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <a type="submit" class="btn btn-primary" href="/index.php">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-user-plus me-2"></i> Create Account
-                            </a>
+                            </button>
                         </div>
                     </form>
                     

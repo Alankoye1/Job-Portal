@@ -19,19 +19,22 @@ $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
 // Build query
-$query = "SELECT * FROM jobs WHERE employer_id = ?";
+$query = "SELECT j.*, 
+         (SELECT COUNT(*) FROM applications a WHERE a.job_id = j.id) as applications 
+         FROM jobs j 
+         WHERE j.employer_id = ?";
 $params = [$_SESSION['user_id']];
 $types = "i";
 
 // Add filters
 if (!empty($status)) {
-    $query .= " AND status = ?";
+    $query .= " AND j.status = ?";
     $params[] = $status;
     $types .= "s";
 }
 
 if (!empty($search)) {
-    $query .= " AND title LIKE ?";
+    $query .= " AND j.title LIKE ?";
     $search_param = "%$search%";
     $params[] = $search_param;
     $types .= "s";
@@ -47,7 +50,7 @@ $total_rows = $count_result->num_rows;
 $total_pages = ceil($total_rows / $per_page);
 
 // Add sorting and pagination
-$query .= " ORDER BY created_at DESC LIMIT ?, ?";
+$query .= " ORDER BY j.created_at DESC LIMIT ?, ?";
 $params[] = $offset;
 $params[] = $per_page;
 $types .= "ii";

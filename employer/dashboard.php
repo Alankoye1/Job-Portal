@@ -21,12 +21,12 @@ $employer = $result->fetch_assoc();
 
 // Get job statistics
 $jobs_query = "SELECT 
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as active_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as filled_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as closed_jobs,
-              (SELECT COUNT(*) FROM jobs WHERE employer_id = ?) as draft_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'active') as active_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'filled') as filled_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'closed') as closed_jobs,
+              (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'draft') as draft_jobs,
               (SELECT SUM(views) FROM jobs WHERE employer_id = ?) as total_views,
-              (SELECT SUM(applications) FROM jobs WHERE employer_id = ?) as total_applications";
+              (SELECT COUNT(*) FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ?) as total_applications";
 $stmt = $conn->prepare($jobs_query);
 $stmt->bind_param("iiiiii", $_SESSION['user_id'], $_SESSION['user_id'], $_SESSION['user_id'], $_SESSION['user_id'], $_SESSION['user_id'], $_SESSION['user_id']);
 $stmt->execute();
@@ -34,7 +34,9 @@ $stats_result = $stmt->get_result();
 $stats = $stats_result->fetch_assoc();
 
 // Get recent job applications
-$applications_query = "SELECT a.*, j.title as job_title, js.name as applicant_name, js.email as applicant_email
+$applications_query = "SELECT a.*, j.title as job_title, 
+                     CONCAT(js.first_name, ' ', js.last_name) as applicant_name, 
+                     js.email as applicant_email
                      FROM applications a
                      JOIN jobs j ON a.job_id = j.id
                      JOIN jobseekers js ON a.jobseeker_id = js.id
@@ -47,9 +49,11 @@ $stmt->execute();
 $applications_result = $stmt->get_result();
 
 // Get recent job postings
-$recent_jobs_query = "SELECT * FROM jobs 
-                     WHERE employer_id = ? 
-                     ORDER BY created_at DESC 
+$recent_jobs_query = "SELECT j.*, 
+                     (SELECT COUNT(*) FROM applications a WHERE a.job_id = j.id) as applications 
+                     FROM jobs j
+                     WHERE j.employer_id = ? 
+                     ORDER BY j.created_at DESC 
                      LIMIT 5";
 $stmt = $conn->prepare($recent_jobs_query);
 $stmt->bind_param("i", $_SESSION['user_id']);
@@ -63,7 +67,7 @@ include_once '../includes/header.php';
 <div class="container mb-5">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h1 class="mb-0">Welcome back, <?php echo htmlspecialchars($employer['name']); ?>!</h1>
+            <h1 class="mb-0">Welcome back, <?php echo htmlspecialchars($employer['company_name']); ?>!</h1>
             <p class="text-muted">Here's what's happening with your job postings</p>
         </div>
         <div class="col-md-6 text-md-end">
@@ -333,7 +337,7 @@ include_once '../includes/header.php';
                         </div>
                         <div>
                             <h5 class="mb-1"><?php echo $employer['company_name'] ? htmlspecialchars($employer['company_name']) : 'Your Company'; ?></h5>
-                            <p class="text-muted mb-0"><?php echo htmlspecialchars($employer['name']); ?> - Account Owner</p>
+                            <p class="text-muted mb-0">Account Owner</p>
                         </div>
                     </div>
                     
@@ -378,10 +382,10 @@ include_once '../includes/header.php';
                         </div>
                     </div>
                     
-                    <?php if($employer['company_description']): ?>
+                    <?php if($employer['description']): ?>
                         <h6>Company Description</h6>
                         <p class="text-muted">
-                            <?php echo nl2br(htmlspecialchars($employer['company_description'])); ?>
+                            <?php echo nl2br(htmlspecialchars($employer['description'])); ?>
                         </p>
                     <?php else: ?>
                         <div class="alert alert-warning">

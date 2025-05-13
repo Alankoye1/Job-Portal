@@ -20,7 +20,7 @@ $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
 // Build query
-$query = "SELECT a.*, j.title as job_title, js.name as applicant_name, js.email as applicant_email, 
+$query = "SELECT a.*, j.title as job_title, CONCAT(js.first_name, ' ', js.last_name) as applicant_name, js.email as applicant_email, 
                  js.phone as applicant_phone, js.location as applicant_location 
           FROM applications a
           JOIN jobs j ON a.job_id = j.id
@@ -43,7 +43,7 @@ if ($job_id > 0) {
 }
 
 if (!empty($search)) {
-    $query .= " AND (js.name LIKE ? OR j.title LIKE ? OR js.email LIKE ?)";
+    $query .= " AND (CONCAT(js.first_name, ' ', js.last_name) LIKE ? OR j.title LIKE ? OR js.email LIKE ?)";
     $search_param = "%$search%";
     $params[] = $search_param;
     $params[] = $search_param;

@@ -44,9 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // If no validation errors, proceed with login
     if (empty($errors)) {
         // Verify user credentials - checking both user tables
-        $query = "SELECT u.*, 'employer' as user_type FROM employers u WHERE u.email = ? 
+        $query = "SELECT u.id, u.email, u.password, u.company_name as name, 'employer' as user_type 
+                 FROM employers u WHERE u.email = ? 
                  UNION 
-                 SELECT u.*, 'jobseeker' as user_type FROM jobseekers u WHERE u.email = ?";
+                 SELECT u.id, u.email, u.password, CONCAT(u.first_name, ' ', u.last_name) as name, 'jobseeker' as user_type 
+                 FROM jobseekers u WHERE u.email = ?";
 
         $stmt = $conn->prepare($query);
         $stmt->bind_param("ss", $email, $email);

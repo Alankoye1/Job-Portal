@@ -231,7 +231,9 @@ function getJobCategories() {
 function getEmploymentTypes() {
     return [
         'full-time' => 'Full-Time',
+        'full_time' => 'Full-Time',
         'part-time' => 'Part-Time',
+        'part_time' => 'Part-Time',
         'contract' => 'Contract',
         'temporary' => 'Temporary',
         'internship' => 'Internship',

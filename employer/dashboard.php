@@ -319,7 +319,7 @@ include_once '../includes/header.php';
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Company Information</h5>
-                        <a href="profile.php" class="btn btn-sm btn-outline-primary">
+                        <a href="edit-job.php" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-edit me-1"></i> Edit
                         </a>
                     </div>

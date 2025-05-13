@@ -17,9 +17,9 @@ if (session_status() === PHP_SESSION_NONE) {
 if (isLoggedIn()) {
     // Redirect to appropriate dashboard
     if (isEmployer()) {
-        header("Location: /employer/dashboard.php");
+        header("Location: ../employer/dashboard.php");
     } else {
-        header("Location: /jobseeker/dashboard.php");
+        header("Location: ../jobseeker/dashboard.php");
     }
     exit;
 }
@@ -110,9 +110,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             // Redirect to appropriate dashboard
             if ($user_type == 'employer') {
-                header("Location: /employer/dashboard.php");
+                header("Location: ../employer/dashboard.php");
             } else {
-                header("Location: /jobseeker/dashboard.php");
+                header("Location: ../jobseeker/dashboard.php");
             }
             exit;
         } else {

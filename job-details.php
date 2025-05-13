@@ -117,8 +117,8 @@ include_once 'includes/header.php';
                             </p>
                             
                             <div class="job-meta">
-                                <?php if($job['job_type'] && array_key_exists($job['job_type'], getEmploymentTypes())): ?>
-                                    <span class="badge bg-primary mb-1 me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?></span>
+                                <?php if($job['job_type']): ?>
+                                    <span class="badge bg-primary mb-1 me-1"><?php echo isset(getEmploymentTypes()[$job['job_type']]) ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : htmlspecialchars($job['job_type']); ?></span>
                                 <?php endif; ?>
                                 
                                 <?php if($job['location']): ?>
@@ -257,7 +257,7 @@ include_once 'includes/header.php';
                         
                         <div class="me-4 mb-3">
                             <strong><i class="fas fa-briefcase me-2"></i> Job Type:</strong>
-                            <?php echo ($job['job_type'] && array_key_exists($job['job_type'], getEmploymentTypes())) ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : 'Not specified'; ?>
+                            <?php echo $job['job_type'] ? (isset(getEmploymentTypes()[$job['job_type']]) ? htmlspecialchars(getEmploymentTypes()[$job['job_type']]) : htmlspecialchars($job['job_type'])) : 'Not specified'; ?>
                         </div>
                         
                         <div class="me-4 mb-3">
@@ -480,7 +480,7 @@ include_once 'includes/header.php';
                                             <p class="mb-1 small text-muted"><?php echo htmlspecialchars($similar_job['company_name']); ?></p>
                                             <div>
                                                 <?php if($similar_job['job_type']): ?>
-                                                    <span class="badge bg-primary me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$similar_job['job_type']]); ?></span>
+                                                    <span class="badge bg-primary me-1"><?php echo isset(getEmploymentTypes()[$similar_job['job_type']]) ? htmlspecialchars(getEmploymentTypes()[$similar_job['job_type']]) : htmlspecialchars($similar_job['job_type']); ?></span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if($similar_job['location']): ?>

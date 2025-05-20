@@ -24,19 +24,17 @@ $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $per_page = 10;
 $offset = ($page - 1) * $per_page;
 
-// Build query
+// Build main query
 $query = "SELECT j.*, e.company_name, e.logo 
           FROM jobs j 
           JOIN employers e ON j.employer_id = e.id 
           WHERE j.status = 'active' AND j.expires_at > NOW()";
-$count_query = "SELECT COUNT(*) as total FROM jobs j WHERE j.status = 'active' AND j.expires_at > NOW()";
 $params = [];
 $types = "";
 
 // Add filters
 if (!empty($keyword)) {
     $query .= " AND (j.title LIKE ? OR j.description LIKE ?)";
-    $count_query .= " AND (j.title LIKE ? OR j.description LIKE ?)";
     $keyword_param = "%$keyword%";
     $params[] = $keyword_param;
     $params[] = $keyword_param;
@@ -45,7 +43,6 @@ if (!empty($keyword)) {
 
 if (!empty($location)) {
     $query .= " AND j.location LIKE ?";
-    $count_query .= " AND j.location LIKE ?";
     $location_param = "%$location%";
     $params[] = $location_param;
     $types .= "s";
@@ -53,28 +50,24 @@ if (!empty($location)) {
 
 if (!empty($category)) {
     $query .= " AND j.category = ?";
-    $count_query .= " AND j.category = ?";
     $params[] = $category;
     $types .= "s";
 }
 
 if (!empty($job_type)) {
     $query .= " AND j.job_type = ?";
-    $count_query .= " AND j.job_type = ?";
     $params[] = $job_type;
     $types .= "s";
 }
 
 if (!empty($experience)) {
     $query .= " AND j.experience_level = ?";
-    $count_query .= " AND j.experience_level = ?";
     $params[] = $experience;
     $types .= "s";
 }
 
 if ($featured) {
     $query .= " AND j.featured = 1";
-    $count_query .= " AND j.featured = 1";
 }
 
 // Add sorting
@@ -98,30 +91,95 @@ switch ($sort) {
 $query .= " LIMIT ?, ?";
 $params[] = $offset;
 $params[] = $per_page;
-$types .= "ii";
+$types .= "ii"; // Add types for LIMIT parameters
 
-// Prepare and execute count query
+// Prepare count query logic separately from main query
+$count_params = [];
+$count_types = "";
+
+// Build the count query with separate params
+$count_query = "SELECT COUNT(*) as total FROM jobs j WHERE j.status = 'active' AND j.expires_at > NOW()";
+
+// Add filters to count query
+if (!empty($keyword)) {
+    $count_query .= " AND (j.title LIKE ? OR j.description LIKE ?)";
+    $keyword_param = "%$keyword%";
+    $count_params[] = $keyword_param;
+    $count_params[] = $keyword_param;
+    $count_types .= "ss";
+}
+
+if (!empty($location)) {
+    $count_query .= " AND j.location LIKE ?";
+    $location_param = "%$location%";
+    $count_params[] = $location_param;
+    $count_types .= "s";
+}
+
+if (!empty($category)) {
+    $count_query .= " AND j.category = ?";
+    $count_params[] = $category;
+    $count_types .= "s";
+}
+
+if (!empty($job_type)) {
+    $count_query .= " AND j.job_type = ?";
+    $count_params[] = $job_type;
+    $count_types .= "s";
+}
+
+if (!empty($experience)) {
+    $count_query .= " AND j.experience_level = ?";
+    $count_params[] = $experience;
+    $count_types .= "s";
+}
+
+if ($featured) {
+    $count_query .= " AND j.featured = 1";
+}
+
+// Execute count query
 $count_stmt = $conn->prepare($count_query);
-if (!empty($types)) {
-    // Calculate correct type string length for count query parameters
-    $count_types = substr($types, 0, strlen($types) - 2); // Remove the 'ii' added for pagination
-    $count_params = array_slice($params, 0, -2); // Remove last 2 elements (offset and per_page)
-    if (!empty($count_types) && !empty($count_params)) {
+try {
+    if (!empty($count_params) && strlen($count_types) === count($count_params)) {
         $count_stmt->bind_param($count_types, ...$count_params);
     }
+    $count_stmt->execute();
+    $count_result = $count_stmt->get_result();
+    $total_rows = $count_result->fetch_assoc()['total'];
+    $total_pages = ceil($total_rows / $per_page);
+} catch (Exception $e) {
+    // Fallback to non-parameterized count query if parameter binding fails
+    error_log('Error with count query: ' . $e->getMessage());
+    
+    // Use a safer non-parameterized query as fallback
+    $safe_count_query = "SELECT COUNT(*) as total FROM jobs j WHERE j.status = 'active' AND j.expires_at > NOW()";
+    
+    if ($featured) {
+        $safe_count_query .= " AND j.featured = 1";
+    }
+    
+    $count_result = $conn->query($safe_count_query);
+    $total_rows = $count_result->fetch_assoc()['total'];
+    $total_pages = ceil($total_rows / $per_page);
 }
-$count_stmt->execute();
-$count_result = $count_stmt->get_result();
-$total_rows = $count_result->fetch_assoc()['total'];
-$total_pages = ceil($total_rows / $per_page);
 
-// Prepare and execute main query
+// Main query execution
 $stmt = $conn->prepare($query);
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
+try {
+    if (!empty($params)) {
+        // Only bind parameters if we have both parameters and types that match
+        if (strlen($types) === count($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+} catch (Exception $e) {
+    // Log error and set result to empty
+    error_log('Error with main query: ' . $e->getMessage());
+    $result = new mysqli_result();
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 // Get job categories for filter
 $categories = getJobCategories();

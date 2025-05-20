@@ -66,29 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_type'] = $user['user_type'];
 
-                // Set remember me cookie if checked
-                if ($remember) {
-                    // Remember Me functionality is disabled because remember_token and token_expires
-                    // columns don't exist in the database tables yet.
-                    // You can add these columns to both employers and jobseekers tables to enable this feature.
-                    
-                    /*
-                    $token = generateToken();
-                    $expires = time() + (86400 * 30); // 30 days
-
-                    // Store token in database
-                    $table = $user['user_type'] == 'employer' ? 'employers' : 'jobseekers';
-                    $query = "UPDATE $table SET remember_token = ?, token_expires = FROM_UNIXTIME(?) WHERE id = ?";
-                    $stmt = $conn->prepare($query);
-                    $stmt->bind_param("sii", $token, $expires, $user['id']);
-                    $stmt->execute();
-
-                    // Set cookie
-                    setcookie('remember_token', $token, $expires, '/');
-                    setcookie('user_email', $email, $expires, '/');
-                    */
-                }
-
                 setMessage("Login successful. Welcome", "success");
 
                 // Redirect to appropriate dashboard

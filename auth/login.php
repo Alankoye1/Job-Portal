@@ -1,7 +1,7 @@
 <?php
 // Set page title
 $page_title = "Login";
-$page_header = "Welcome Back";
+$page_header = "Welcome";
 
 // Include database connection
 require_once '../config/db.php';
@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     */
                 }
 
-                setMessage("Login successful. Welcome back!", "success");
+                setMessage("Login successful. Welcome", "success");
 
                 // Redirect to appropriate dashboard
                 if ($user['user_type'] == 'employer') {

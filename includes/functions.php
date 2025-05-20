@@ -247,7 +247,6 @@ function getEmploymentTypes() {
  */
 function getExperienceLevels() {
     return [
-        'entry' => 'Entry Level',
         'intermediate' => 'Intermediate',
         'experienced' => 'Experienced',
         'manager' => 'Manager',

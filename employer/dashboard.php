@@ -67,7 +67,7 @@ include_once '../includes/header.php';
 <div class="container mb-5">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h1 class="mb-0">Welcome back, <?php echo htmlspecialchars($employer['company_name']); ?>!</h1>
+            <h1 class="mb-0">Welcome, <?php echo htmlspecialchars($employer['company_name']); ?>!</h1>
             <p class="text-muted">Here's what's happening with your job postings</p>
         </div>
         <div class="col-md-6 text-md-end">

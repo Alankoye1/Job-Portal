@@ -338,7 +338,7 @@ include_once 'includes/header.php';
                 <div class="stat-card bg-primary border border-light rounded p-4">
                     <i class="fas fa-briefcase fa-3x mb-3"></i>
                     <h3 class="stat-value mb-2">
-                        <span class="stat-counter" data-target="<?php echo $stats['active_jobs']; ?>">0</span>+
+                        <span class="stat-counter" data-target="<?php echo $stats['active_jobs']; ?>">12</span>+
                     </h3>
                     <p class="stat-label mb-0">Active Jobs</p>
                 </div>
@@ -348,7 +348,7 @@ include_once 'includes/header.php';
                 <div class="stat-card bg-primary border border-light rounded p-4">
                     <i class="fas fa-building fa-3x mb-3"></i>
                     <h3 class="stat-value mb-2">
-                        <span class="stat-counter" data-target="<?php echo $stats['employers']; ?>">0</span>+
+                        <span class="stat-counter" data-target="<?php echo $stats['employers']; ?>">5</span>+
                     </h3>
                     <p class="stat-label mb-0">Companies</p>
                 </div>
@@ -358,7 +358,7 @@ include_once 'includes/header.php';
                 <div class="stat-card bg-primary border border-light rounded p-4">
                     <i class="fas fa-user-tie fa-3x mb-3"></i>
                     <h3 class="stat-value mb-2">
-                        <span class="stat-counter" data-target="<?php echo $stats['jobseekers']; ?>">0</span>+
+                        <span class="stat-counter" data-target="<?php echo $stats['jobseekers']; ?>">25</span>+
                     </h3>
                     <p class="stat-label mb-0">Job Seekers</p>
                 </div>
@@ -368,7 +368,7 @@ include_once 'includes/header.php';
                 <div class="stat-card bg-primary border border-light rounded p-4">
                     <i class="fas fa-paper-plane fa-3x mb-3"></i>
                     <h3 class="stat-value mb-2">
-                        <span class="stat-counter" data-target="<?php echo $stats['applications']; ?>">0</span>+
+                        <span class="stat-counter" data-target="<?php echo $stats['applications']; ?>">5</span>+
                     </h3>
                     <p class="stat-label mb-0">Applications</p>
                 </div>

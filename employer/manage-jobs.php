@@ -157,7 +157,7 @@ include_once '../includes/header.php';
                                             <h6 class="mb-0"><?php echo htmlspecialchars($job['title']); ?></h6>
                                             <small class="text-muted">
                                                 <?php if($job['job_type']): ?>
-                                                    <span class="badge bg-primary me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?></span>
+                                                    <span class="badge bg-primary me-1"><?php echo htmlspecialchars(isset(getEmploymentTypes()[$job['job_type']]) ? getEmploymentTypes()[$job['job_type']] : $job['job_type']); ?></span>
                                                 <?php endif; ?>
                                                 <?php if($job['location']): ?>
                                                     <i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($job['location']); ?>

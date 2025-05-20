@@ -494,7 +494,11 @@ include_once '../includes/header.php';
                                                     </p>
                                                     <div>
                                                         <?php if($job['job_type']): ?>
-                                                            <span class="badge bg-primary me-1"><?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?></span>
+                                                            <span class="badge bg-primary me-1"><?php 
+                                                                // Convert underscores to hyphens if needed
+                                                                $job_type = str_replace('_', '-', $job['job_type']);
+                                                                echo htmlspecialchars(isset(getEmploymentTypes()[$job_type]) ? getEmploymentTypes()[$job_type] : $job['job_type']); 
+                                                            ?></span>
                                                         <?php endif; ?>
                                                         <?php if($job['salary_min'] && $job['salary_max']): ?>
                                                             <span class="badge bg-success me-1">

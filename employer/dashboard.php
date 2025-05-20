@@ -255,7 +255,7 @@ include_once '../includes/header.php';
                                                 <i class="fas fa-map-marker-alt me-1"></i> <?php echo $job['location'] ? htmlspecialchars($job['location']) : 'Remote'; ?>
                                                 <?php if($job['job_type']): ?>
                                                     <span class="mx-1">•</span>
-                                                    <i class="fas fa-briefcase me-1"></i> <?php echo htmlspecialchars(getEmploymentTypes()[$job['job_type']]); ?>
+                                                    <i class="fas fa-briefcase me-1"></i> <?php echo htmlspecialchars(isset(getEmploymentTypes()[$job['job_type']]) ? getEmploymentTypes()[$job['job_type']] : $job['job_type']); ?>
                                                 <?php endif; ?>
                                             </p>
                                             <div>

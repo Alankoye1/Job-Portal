@@ -114,3 +114,24 @@ INSERT INTO `applications` (`job_id`, `jobseeker_id`, `status`, `created_at`) VA
 (2, 1, 'pending', NOW()),
 (3, 2, 'reviewed', NOW()),
 (4, 3, 'interviewed', NOW());
+
+-- Create saved_jobs table
+CREATE TABLE IF NOT EXISTS `saved_jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `jobseeker_id` int(11) NOT NULL,
+  `job_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `jobseeker_job_unique` (`jobseeker_id`, `job_id`),
+  KEY `job_id` (`job_id`),
+  CONSTRAINT `saved_jobs_ibfk_1` FOREIGN KEY (`jobseeker_id`) REFERENCES `jobseekers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `saved_jobs_ibfk_2` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert sample saved jobs
+INSERT INTO `saved_jobs` (`jobseeker_id`, `job_id`) VALUES
+(1, 3),
+(1, 4),
+(2, 1),
+(3, 2);

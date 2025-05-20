@@ -171,7 +171,11 @@ include_once '../includes/header.php';
                                             
                                             <div class="d-flex flex-wrap align-items-center">
                                                 <?php if($application['job_type']): ?>
-                                                    <span class="badge bg-primary me-2 mb-1"><?php echo htmlspecialchars(getEmploymentTypes()[$application['job_type']]); ?></span>
+                                                    <span class="badge bg-primary me-2 mb-1"><?php 
+                                                        // Convert underscores to hyphens if needed
+                                                        $job_type = str_replace('_', '-', $application['job_type']);
+                                                        echo htmlspecialchars(isset(getEmploymentTypes()[$job_type]) ? getEmploymentTypes()[$job_type] : $application['job_type']); 
+                                                    ?></span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if($application['job_location']): ?>

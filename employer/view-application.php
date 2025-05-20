@@ -119,7 +119,7 @@ include_once '../includes/header.php';
                             <?php if($application['job_type']): ?>
                                 <span class="mx-2">•</span>
                                 <i class="fas fa-briefcase me-1"></i> 
-                                <?php echo htmlspecialchars(getEmploymentTypes()[$application['job_type']]); ?>
+                                <?php echo htmlspecialchars(isset(getEmploymentTypes()[$application['job_type']]) ? getEmploymentTypes()[$application['job_type']] : $application['job_type']); ?>
                             <?php endif; ?>
                         </div>
                         <div>
